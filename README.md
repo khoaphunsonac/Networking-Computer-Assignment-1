@@ -68,24 +68,24 @@ BTL/
 ## 🏗️ Kiến trúc hệ thống
 
 ```
-┌─────────┐       ┌──────────────────┐       ┌──────────────────┐
-│  Client  │──────▶│   Reverse Proxy  │──────▶│  Backend Server  │
-│ (Browser)│◀──────│   (port 8080)    │◀──────│   (port 9000)    │
-└─────────┘       └──────────────────┘       └──────────────────┘
+┌──────────┐        ┌───────────────────┐       ┌──────────────────┐
+│  Client  │───────▶│   Reverse Proxy  │──────▶│  Backend Server  │
+│ (Browser)│◀───────│   (port 8080)    │◀──────│   (port 9000)    │
+└──────────┘        └───────────────────┘       └──────────────────┘
                          │                          │
                          │  hostname routing        │  HttpAdapter
                          │  (proxy.conf)            │  Request/Response
                          │                          │
                          │                    ┌─────┴─────┐
-                         │                    │ AsynapRous │
-                         │                    │  (RESTful  │
-                         │                    │   Router)  │
+                         │                    │ AsynapRous│
+                         │                    │  (RESTful │
+                         │                    │   Router) │
                          │                    └───────────┘
                          │
-                    ┌─────┴──────┐
-                    │ SampleApp  │
-                    │ (port 2026)│
-                    └────────────┘
+                   ┌─────┴──────┐
+                   │ SampleApp  │
+                   │ (port 2026)│
+                   └────────────┘
 ```
 
 ### Luồng xử lý request
