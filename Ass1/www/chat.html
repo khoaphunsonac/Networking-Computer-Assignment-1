@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Hybrid Chat UI</title>
+    <link rel="stylesheet" href="/css/chatapp.css" />
+</head>
+<body>
+    <main class="app-shell">
+        <section class="login-panel" id="loginPanel">
+            <h1>Hybrid Chat Application</h1>
+            <p>Đăng nhập và kết nối peer để chat trực tiếp (P2P).</p>
+            <form id="loginForm">
+                <label for="usernameInput">Username</label>
+                <input id="usernameInput" type="text" placeholder="vd: alice" required />
+                <label for="selfIpInput">Self IP</label>
+                <input id="selfIpInput" type="text" value="127.0.0.1" required />
+                <label for="selfP2pPortInput">Self P2P Port</label>
+                <input id="selfP2pPortInput" type="number" min="1" max="65535" placeholder="3026" required />
+                <button type="submit">Login</button>
+            </form>
+        </section>
+
+        <section class="chat-panel hidden" id="chatPanel">
+            <aside class="sidebar">
+                <h2>Connected Users</h2>
+                <div class="list-block">
+                    <ul id="peerList"></ul>
+                </div>
+
+                <form id="connectForm" class="inline-form">
+                    <input id="peerIdInput" type="text" placeholder="peer id" required />
+                    <input id="peerIpInput" type="text" placeholder="ip" value="127.0.0.1" required />
+                    <input id="peerPortInput" type="number" min="1" max="65535" placeholder="3027" required />
+                    <button type="submit">Connect</button>
+                </form>
+            </aside>
+
+            <section class="chat-main">
+                <header class="chat-header">
+                    <div>
+                        <h2 id="activeChannelTitle">General Chat</h2>
+                        <small id="sessionInfo">-</small>
+                    </div>
+                    <button id="logoutBtn" class="danger">Logout</button>
+                </header>
+
+                <div class="tabs">
+                    <button class="tab active" data-channel="general">General</button>
+                </div>
+
+                <div class="messages" id="messagesBox"></div>
+
+                <form id="messageForm" class="message-form">
+                    <input id="messageInput" type="text" placeholder="Type a message..." required />
+                    <select id="sendTypeSelect">
+                        <option value="broadcast">Broadcast</option>
+                        <option value="direct">Direct</option>
+                    </select>
+                    <select id="targetPeerSelect"></select>
+                    <button type="submit">Send</button>
+                </form>
+            </section>
+        </section>
+    </main>
+
+    <section class="toast" id="toast"></section>
+
+    <script src="/js/chatapp.js"></script>
+</body>
+</html>
