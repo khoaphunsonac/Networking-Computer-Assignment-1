@@ -80,26 +80,38 @@ class HttpAdapter:
 
     def _call_hook_sync(self, hook, req, resp):
         if inspect.iscoroutinefunction(hook):
-            try:
-                return asyncio.run(hook(req.headers, req.body))
-            except TypeError:
+            if self._expects_req_resp(hook):
                 return asyncio.run(hook(req, resp))
+            return asyncio.run(hook(req.headers, req.body))
 
-        try:
-            return hook(req.headers, req.body)
-        except TypeError:
+        if self._expects_req_resp(hook):
             return hook(req, resp)
+        return hook(req.headers, req.body)
 
     async def _call_hook_async(self, hook, req, resp):
         # Async hook
         if inspect.iscoroutinefunction(hook):
-            try:
-                return await hook(req.headers, req.body)
-            except TypeError:
+            if self._expects_req_resp(hook):
                 return await hook(req, resp)
+            return await hook(req.headers, req.body)
 
         # Sync hook in coroutine context
         return self._call_hook_sync(hook, req, resp)
+
+    def _expects_req_resp(self, hook):
+        """Detect whether a handler expects (request, response) arguments."""
+        try:
+            signature = inspect.signature(hook)
+        except (ValueError, TypeError):
+            return False
+
+        params = list(signature.parameters.values())
+        if len(params) < 2:
+            return False
+
+        first = params[0].name.lower()
+        second = params[1].name.lower()
+        return first in ("req", "request") or second in ("resp", "response")
 
     def handle_client(self, conn, addr, routes):
         self.conn = conn

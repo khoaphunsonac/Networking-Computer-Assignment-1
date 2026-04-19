@@ -126,6 +126,10 @@ class Response:
             "User-Agent": reqhdr.get("User-Agent", "AsynapRous-Client"),
         }
 
+        for key, value in self.headers.items():
+            if key not in headers:
+                headers[key] = value
+
         auth = reqhdr.get("Authorization")
         if auth:
             headers["Authorization"] = auth
