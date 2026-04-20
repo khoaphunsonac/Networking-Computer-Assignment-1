@@ -156,6 +156,7 @@ def handle_client(ip, port, conn, addr, routes):
 
 
 def run_proxy(ip, port, routes):
+    # TODO(student): keep one worker thread per accepted client for concurrent proxy forwarding.
     proxy = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     proxy.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 

@@ -98,6 +98,7 @@ class Request:
 
     def prepare(self, request, routes=None):
         """Parse a raw HTTP request string and bind optional route hook."""
+        # TODO(student): ensure cookie parsing is complete and supports common header formats.
 
         self.method, self.path, self.version = self.extract_request_line(request)
         self.url = self.path

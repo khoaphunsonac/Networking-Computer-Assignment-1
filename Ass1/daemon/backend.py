@@ -138,6 +138,9 @@ def run_backend(ip, port, routes):
     # This global variable to configure the asynchronous mode or not
     global mode_async
 
+    # TODO(student): implement and compare non-blocking strategies (threading/callback/coroutine).
+    # Keep the accept loop robust so one client failure does not stop the whole backend.
+
     print("[Backend] run_backend with routes={}".format(routes))
     
     # Process async stream for registering the service and terminate

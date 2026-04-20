@@ -238,6 +238,21 @@ Build HTTP response: status code, headers, content (MIME detection, file serving
 
 ---
 
+## 📝 Các TODO (phần sinh viên cần hoàn thành)
+
+| Module | Vị trí | Yêu cầu |
+|--------|--------|----------|
+| `proxy.py` | `run_proxy()` | Implement multi-thread cho client connections |
+| `backend.py` | `run_backend()` | Implement non-blocking communication (thread / callback / coroutine) |
+| `httpadapter.py` | `handle_client()` | Xử lý App hook cho RESTful routing |
+| `request.py` | `prepare()` | Implement cookie parsing từ header |
+| `response.py` | `build_response_header()` | Build formatted HTTP response header |
+| `response.py` | `build_content()` | Fetch object file từ storage |
+| `response.py` | `build_response()` | Hỗ trợ thêm MIME types (image, video, v.v.) |
+| `httpadapter.py` | `build_proxy_headers()` | Implement authentication |
+
+---
+
 ## ✅ Trạng thái Hybrid Chat Application
 
 Phần 2.3 (Hybrid Chat Application) đã được tích hợp trong sample app với các thành phần chính:

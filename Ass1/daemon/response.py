@@ -97,6 +97,7 @@ class Response:
         return base_dir
 
     def build_content(self, path, base_dir):
+        # TODO(student): fetch object/file bytes from storage safely and return exact byte length.
         filepath = os.path.join(base_dir, path.lstrip("/"))
         try:
             with open(filepath, "rb") as f:
@@ -106,6 +107,7 @@ class Response:
         return len(content), content
 
     def build_response_header(self, request):
+        # TODO(student): keep HTTP header formatting compliant (status line, CRLF, required headers).
         reqhdr = request.headers if request and request.headers else CaseInsensitiveDict()
 
         # Normalize content to bytes before calculating content-length.
@@ -152,6 +154,7 @@ class Response:
         ).encode("utf-8")
 
     def build_response(self, request, envelop_content=None):
+        # TODO(student): extend MIME handling for more content types (images/videos/fonts/others).
         path = request.path if request else "/"
         mime_type = self.get_mime_type(path)
 

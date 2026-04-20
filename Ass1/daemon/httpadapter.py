@@ -19,6 +19,7 @@ HTTP adapter for handling client connections and dispatching routes.
 
 from .request import Request
 from .response import Response
+from .utils import get_auth_from_url
 
 import asyncio
 import base64
@@ -114,6 +115,7 @@ class HttpAdapter:
         return first in ("req", "request") or second in ("resp", "response")
 
     def handle_client(self, conn, addr, routes):
+        # TODO(student): complete app hook dispatch so REST routes can override static file responses.
         self.conn = conn
         self.connaddr = addr
         self.routes = routes or {}
@@ -169,11 +171,41 @@ class HttpAdapter:
         pass
 
     def build_proxy_headers(self, proxy):
-        """Build proxy headers with basic authentication credentials."""
+        """Build proxy headers with optional basic authentication credentials."""
+        # TODO(student): build Proxy-Authorization from proxy credentials, avoid hard-coded secrets.
         headers = {}
 
-        username = "user1"
-        password = "password"
+        username = ""
+        password = ""
+
+        # Accept proxy as URL string, dict, or object with auth fields.
+        if isinstance(proxy, str):
+            username, password = get_auth_from_url(proxy)
+        elif isinstance(proxy, dict):
+            auth = proxy.get("auth")
+            if isinstance(auth, (tuple, list)) and len(auth) >= 2:
+                username, password = auth[0], auth[1]
+            else:
+                username = proxy.get("username") or proxy.get("user") or ""
+                password = proxy.get("password") or proxy.get("pass") or ""
+        elif proxy is not None:
+            auth = getattr(proxy, "auth", None)
+            if isinstance(auth, (tuple, list)) and len(auth) >= 2:
+                username, password = auth[0], auth[1]
+            else:
+                username = (
+                    getattr(proxy, "username", None)
+                    or getattr(proxy, "user", None)
+                    or ""
+                )
+                password = (
+                    getattr(proxy, "password", None)
+                    or getattr(proxy, "pass", None)
+                    or ""
+                )
+
+        username = str(username or "")
+        password = str(password or "")
         if username and password:
             credentials = f"{username}:{password}"
             encoded = base64.b64encode(credentials.encode("utf-8")).decode("utf-8")
