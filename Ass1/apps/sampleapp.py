@@ -17,6 +17,7 @@
 
 import json
 import threading
+from urllib.parse import parse_qs, unquote_plus
 
 from daemon import AsynapRous
 from .hybrid_chat import HybridChatNode, wait_for_connection
@@ -54,6 +55,22 @@ def _get_node():
 def login(req, resp):
     """Authenticate one user and return a lightweight session token."""
     payload = _read_json(req.body)
+    raw_body = ""
+    if not payload and req.body:
+        raw_body = req.body
+        if isinstance(raw_body, bytes):
+            raw_body = raw_body.decode("utf-8", errors="replace")
+        else:
+            raw_body = str(raw_body)
+
+        form_data = parse_qs(raw_body, keep_blank_values=True)
+        payload = {key: values[0] if values else "" for key, values in form_data.items()}
+
+    # Fallback for unusual form body shapes that bypass parse_qs.
+    if not payload.get("username") and raw_body and "username=" in raw_body:
+        candidate = raw_body.split("username=", 1)[1].split("&", 1)[0]
+        payload["username"] = unquote_plus(candidate)
+
     username = str(payload.get("username") or payload.get("user") or "guest").strip() or "guest"
 
     with _state_lock:

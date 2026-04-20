@@ -276,7 +276,7 @@ Phần 2.3 (Hybrid Chat Application) đã được tích hợp trong sample app 
 
 | API | Method | Mục đích |
 |-----|--------|----------|
-| `/login` | `POST` | Xác thực user, trả session cookie |
+| `/login` | `POST` | Xác thực user, trả session cookie (khuyến nghị `application/json`) |
 | `/submit-info` | `POST` | Đăng ký peer vào tracker |
 | `/add-list` | `POST` | Đồng bộ danh sách peer |
 | `/get-list` | `GET/POST` | Lấy danh sách peer đang hoạt động |
@@ -320,8 +320,28 @@ Lưu ý: mỗi app tự mở P2P listener tại `server-port + 1000`.
 
 ### 2) Test cookie ở API login
 
+Khuyến nghị gửi JSON payload cho route `/login`:
+
 ```bash
 curl -i -X POST http://127.0.0.1:2026/login -H "Content-Type: application/json" -d "{\"username\":\"alice\"}"
+```
+
+Ví dụ nhanh cho Windows PowerShell:
+
+```powershell
+curl.exe -i -X POST "http://127.0.0.1:2026/login" -H "Content-Type: application/json" --data "{\"username\":\"alice\"}"
+```
+
+Ví dụ cho Windows CMD (đã kiểm tra chạy thành công):
+
+```cmd
+curl -i -X POST http://127.0.0.1:2026/login -H "Content-Type: application/json" -d "{\"username\":\"alice\"}"
+```
+
+Nếu PowerShell báo lỗi escape, dùng dạng an toàn hơn:
+
+```powershell
+curl.exe -i -X POST "http://127.0.0.1:2026/login" -H "Content-Type: application/json" --data-raw "{""username"":""alice""}"
 ```
 
 Kỳ vọng: trong response header có `Set-Cookie: session_id=token-alice; Path=/; HttpOnly`.
@@ -366,6 +386,7 @@ Kỳ vọng: message mới xuất hiện thêm trong danh sách channel.
 ### 7) Dùng giao diện web thay cho curl
 
 Giao diện đã thêm tại URL `http://127.0.0.1:2026/chat.html` (hoặc peer khác như `2027`).
+Trang `http://127.0.0.1:2026/login.html` cũng đã được đồng bộ CSS với chat UI và submit login bằng JSON.
 
 Các bước dùng UI:
 

@@ -9,21 +9,7 @@
 </head>
 <body>
     <main class="app-shell">
-        <section class="login-panel" id="loginPanel">
-            <h1>Hybrid Chat Application</h1>
-            <p>Đăng nhập và kết nối peer để chat trực tiếp (P2P).</p>
-            <form id="loginForm">
-                <label for="usernameInput">Username</label>
-                <input id="usernameInput" type="text" placeholder="vd: alice" required />
-                <label for="selfIpInput">Self IP</label>
-                <input id="selfIpInput" type="text" value="127.0.0.1" required />
-                <label for="selfP2pPortInput">Self P2P Port</label>
-                <input id="selfP2pPortInput" type="number" min="1" max="65535" placeholder="3026" required />
-                <button type="submit">Login</button>
-            </form>
-        </section>
-
-        <section class="chat-panel hidden" id="chatPanel">
+        <section class="chat-panel" id="chatPanel">
             <aside class="sidebar">
                 <h2>Connected Users</h2>
                 <div class="list-block">

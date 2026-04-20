@@ -1,6 +1,10 @@
 (function () {
     "use strict";
 
+    var STORAGE_USERNAME = "chat.username";
+    var STORAGE_SELF_IP = "chat.selfIp";
+    var STORAGE_SELF_P2P_PORT = "chat.selfP2pPort";
+
     var state = {
         username: "",
         channel: "general",
@@ -9,9 +13,7 @@
         connected: false,
     };
 
-    var loginPanel = document.getElementById("loginPanel");
     var chatPanel = document.getElementById("chatPanel");
-    var loginForm = document.getElementById("loginForm");
     var connectForm = document.getElementById("connectForm");
     var messageForm = document.getElementById("messageForm");
     var logoutBtn = document.getElementById("logoutBtn");
@@ -154,36 +156,43 @@
         }
     }
 
-    loginForm.addEventListener("submit", async function (event) {
-        event.preventDefault();
-        var username = document.getElementById("usernameInput").value.trim();
-        var selfIp = document.getElementById("selfIpInput").value.trim();
-        var selfP2pPort = parseInt(document.getElementById("selfP2pPortInput").value, 10);
-
-        try {
-            var loginResult = await api("/login", "POST", { username: username });
-            state.username = username;
-
-            await api("/submit-info", "POST", {
-                peer_id: "peer-" + window.location.port,
-                ip: selfIp,
-                port: selfP2pPort,
-            });
-
-            activeChannelTitle.textContent = "General Chat";
-            sessionInfo.textContent = "Logged as " + loginResult.peer_id + " • HTTP " + window.location.port;
-
-            loginPanel.classList.add("hidden");
-            chatPanel.classList.remove("hidden");
-
-            state.connected = true;
-            await initialSync();
-            startPolling();
-            notify("Đăng nhập thành công.");
-        } catch (err) {
-            notify("Login lỗi: " + err.message);
+    function defaultP2pPortFromHttpPort() {
+        var httpPort = parseInt(window.location.port, 10);
+        if (!Number.isNaN(httpPort) && httpPort > 0) {
+            return String(httpPort + 1000);
         }
-    });
+        return "3026";
+    }
+
+    async function loginToChat(username, selfIp, selfP2pPort, notifyOnSuccess) {
+        var loginResult = await api("/login", "POST", { username: username });
+        state.username = loginResult.peer_id || username;
+
+        await api("/submit-info", "POST", {
+            peer_id: "peer-" + window.location.port,
+            ip: selfIp,
+            port: selfP2pPort,
+        });
+
+        sessionStorage.setItem(STORAGE_USERNAME, state.username);
+        sessionStorage.setItem(STORAGE_SELF_IP, selfIp);
+        sessionStorage.setItem(STORAGE_SELF_P2P_PORT, String(selfP2pPort));
+
+        activeChannelTitle.textContent = "General Chat";
+        sessionInfo.textContent = "Logged as " + state.username + " • HTTP " + window.location.port;
+
+        if (chatPanel) {
+            chatPanel.classList.remove("hidden");
+        }
+
+        state.connected = true;
+        await initialSync();
+        startPolling();
+
+        if (notifyOnSuccess) {
+            notify("Đăng nhập thành công.");
+        }
+    }
 
     connectForm.addEventListener("submit", async function (event) {
         event.preventDefault();
@@ -254,15 +263,36 @@
         state.username = "";
         state.peers = [];
 
-        chatPanel.classList.add("hidden");
-        loginPanel.classList.remove("hidden");
+        sessionStorage.removeItem(STORAGE_USERNAME);
+        sessionStorage.removeItem(STORAGE_SELF_IP);
+        sessionStorage.removeItem(STORAGE_SELF_P2P_PORT);
+
+        if (chatPanel) {
+            chatPanel.classList.add("hidden");
+        }
         renderPeers();
         renderMessages([]);
 
         notify("Đã logout.");
+        window.location.href = "/login.html";
     });
 
     window.addEventListener("beforeunload", function () {
         stopPolling();
     });
+
+    (function initFromSession() {
+        var savedUsername = sessionStorage.getItem(STORAGE_USERNAME) || "";
+        var savedIp = sessionStorage.getItem(STORAGE_SELF_IP) || "127.0.0.1";
+        var savedP2pPort = sessionStorage.getItem(STORAGE_SELF_P2P_PORT) || defaultP2pPortFromHttpPort();
+
+        if (!savedUsername) {
+            window.location.href = "/login.html";
+            return;
+        }
+
+        loginToChat(savedUsername, savedIp, parseInt(savedP2pPort, 10), false).catch(function () {
+            notify("Auto login không thành công. Vui lòng bấm Login lại.");
+        });
+    })();
 })();

@@ -1,8 +1,93 @@
-<html><body>
-<h1>Login</h1>
-<form method="POST" action="/login">
-  Username: <input name="username" type="text"><br>
-  Password: <input name="password" type="password"><br>
-  <input type="submit" value="Login">
-</form>
-</body></html>
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Login - Hybrid Chat</title>
+  <link rel="stylesheet" href="/css/chatapp.css" />
+</head>
+<body>
+  <main class="app-shell">
+    <section class="login-panel">
+      <h1>Login</h1>
+      <p>Đăng nhập để bắt đầu sử dụng Hybrid Chat UI.</p>
+
+      <form id="loginForm" method="POST" action="/login">
+        <label for="username">Username</label>
+        <input id="username" name="username" type="text" placeholder="vd: alice" required />
+
+        <label for="selfIp">Self IP</label>
+        <input id="selfIp" name="selfIp" type="text" value="127.0.0.1" required />
+
+        <label for="selfP2pPort">Self P2P Port</label>
+        <input id="selfP2pPort" name="selfP2pPort" type="number" min="1" max="65535" placeholder="3026" required />
+
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" placeholder="optional" />
+
+        <button type="submit">Login</button>
+      </form>
+
+      <p id="statusText" class="msg-meta"></p>
+      <!-- <p>
+        Mở chat trực tiếp tại <a href="/chat.html">/chat.html</a>
+      </p> -->
+    </section>
+  </main>
+
+  <script>
+    (function () {
+      "use strict";
+
+      var form = document.getElementById("loginForm");
+      var statusText = document.getElementById("statusText");
+
+      form.addEventListener("submit", async function (event) {
+        event.preventDefault();
+
+        var username = document.getElementById("username").value.trim();
+        var selfIp = document.getElementById("selfIp").value.trim();
+        var selfP2pPort = parseInt(document.getElementById("selfP2pPort").value, 10);
+        if (!username) {
+          statusText.textContent = "Username không được để trống.";
+          return;
+        }
+
+        if (!selfIp) {
+          statusText.textContent = "Self IP không được để trống.";
+          return;
+        }
+
+        if (Number.isNaN(selfP2pPort) || selfP2pPort <= 0) {
+          statusText.textContent = "Self P2P Port không hợp lệ.";
+          return;
+        }
+
+        try {
+          var response = await fetch("/login", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ username: username })
+          });
+
+          var data = await response.json();
+          if (!response.ok || data.error) {
+            throw new Error(data.error || ("HTTP " + response.status));
+          }
+
+          sessionStorage.setItem("chat.username", data.peer_id || username);
+          sessionStorage.setItem("chat.selfIp", selfIp);
+          sessionStorage.setItem("chat.selfP2pPort", String(selfP2pPort));
+          statusText.textContent = "Login thành công: " + data.peer_id;
+          window.location.href = "/chat.html";
+        } catch (error) {
+          statusText.textContent = "Login thất bại: " + error.message;
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
